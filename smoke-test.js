@@ -7,7 +7,13 @@ const rawHtml = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
 const wordsJs = fs.readFileSync(path.join(__dirname, "words-en.js"), "utf8");
 // Inline words-en.js so it's available synchronously at boot (browsers load <script src> in order;
 // jsdom loads external scripts async, which would otherwise leave PACK.bank empty).
-const html = rawHtml.replace('<script src="words-en.js"></script>', '<script>' + wordsJs + '</script>');
+// Also seed a parent set with apostrophe words (before the engine runs) so the now-conditional
+// apostrophe key appears in the paper.
+const seed = "<script>localStorage.setItem('ls.sets'," +
+  JSON.stringify(JSON.stringify([{ id:"sApos", name:"apos", enabled:true,
+    words:[{w:"don't",lvl:1},{w:"can't",lvl:1},{w:"it's",lvl:1},{w:"they're",lvl:1},{w:"we're",lvl:1}] }])) +
+  ");<\/script>";
+const html = rawHtml.replace('<script src="words-en.js"></script>', seed + '<script>' + wordsJs + '</script>');
 
 // Minimal localStorage
 const store = {};
@@ -78,6 +84,12 @@ setTimeout(() => {
   check("game screen active after play", doc.getElementById("screen-game").classList.contains("active"));
   check("tray has slots for a word", doc.querySelectorAll("#tray .slot, #tray .brick").length > 0);
   check("on-screen keyboard built", doc.querySelectorAll("#keyboard .key").length >= 26);
+
+  // Build strip: one brick slot per word + a reward goal, with a "Build a …" caption.
+  check("build strip has a slot per word",
+    doc.querySelectorAll("#buildBar .bslot").length === parseInt(doc.getElementById("wordtotal").textContent,10));
+  check("build strip has a reward goal", !!doc.querySelector("#buildBar .bgoal"));
+  check("build caption shown", /build/i.test(doc.getElementById("buildCap").textContent));
 
   // Type letters via on-screen keys should add bricks
   const keys = {};

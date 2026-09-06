@@ -102,9 +102,12 @@
   .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
 
   /* On-screen keyboard */
-  .keyboard{display:flex;flex-direction:column;gap:6px;align-items:center;width:100%;max-width:600px;}
+  .keyboard{--kw:clamp(28px,8.6vw,46px);--kh:clamp(42px,11vw,50px);
+    display:flex;flex-direction:column;gap:6px;align-items:center;width:100%;max-width:600px;}
   .krow{display:flex;gap:5px;justify-content:center;width:100%;}
-  .key{flex:0 1 auto;width:clamp(28px,8.6vw,46px);height:clamp(42px,11vw,50px);padding:0;
+  .krow.r1{transform:translateX(calc(var(--kw)*0.5));}
+  .krow.r2{transform:translateX(calc(var(--kw)*1));}
+  .key{flex:0 0 auto;width:var(--kw);height:var(--kh);padding:0;
     border-radius:9px;border:none;cursor:pointer;
     font-family:inherit;font-weight:900;font-size:clamp(15px,4.5vw,19px);color:#fff;background:var(--theme);
     box-shadow:0 4px 0 var(--theme2);display:flex;align-items:center;justify-content:center;}
@@ -188,6 +191,20 @@
     background:linear-gradient(90deg,#ffd54a,#ff9e2c);color:#5b3d00;font-weight:900;font-size:15px;
     box-shadow:0 3px 0 rgba(0,0,0,.12);animation:starpulse 1.4s ease-in-out infinite;}
   @keyframes starpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+  .buildwrap{width:100%;max-width:600px;margin:0 auto 6px;}
+  .buildcap{text-align:center;font-weight:800;font-size:14px;color:#6b4b00;margin-bottom:5px;}
+  .buildbar{display:flex;align-items:center;gap:5px;justify-content:center;}
+  .bslot{flex:1 1 0;max-width:34px;height:20px;border-radius:5px;border:2px dashed #d7d7de;
+    background:#f4f4f7;transition:transform .2s;}
+  .bslot.on{border-style:solid;border-color:rgba(0,0,0,.12);
+    background-image:radial-gradient(circle at 30% 42%, rgba(255,255,255,.9) 2.3px, transparent 2.8px),
+                     radial-gradient(circle at 70% 42%, rgba(255,255,255,.9) 2.3px, transparent 2.8px);
+    box-shadow:0 2px 0 rgba(0,0,0,.15);}
+  .bslot.pop{animation:bpop .45s ease;}
+  @keyframes bpop{0%{transform:scale(.3);}60%{transform:scale(1.28);}100%{transform:scale(1);}}
+  .bgoal{font-size:26px;filter:grayscale(1) opacity(.4);transition:.4s;margin-left:4px;flex:0 0 auto;}
+  .bgoal.on{filter:none;animation:goalpop .7s ease;}
+  @keyframes goalpop{0%{transform:scale(.5) translateY(6px);}65%{transform:scale(1.35) translateY(-5px);}100%{transform:scale(1);}}
   @keyframes flash{0%{opacity:0;transform:scale(.4) rotate(-6deg);}
     30%{opacity:1;transform:scale(1.1) rotate(3deg);}70%{opacity:1;transform:scale(1);}100%{opacity:0;}}
 
@@ -222,6 +239,10 @@
     </div>
 
     <div class="stage">
+      <div class="buildwrap">
+        <div class="buildcap" id="buildCap">🔨 Let's build!</div>
+        <div class="buildbar" id="buildBar"></div>
+      </div>
       <div class="prompt card">
         <div class="starbadge hidden" id="starBadge">⭐ Star word</div>
         <div class="emoji" id="promptVisual">🐱</div>
@@ -443,6 +464,10 @@ let profile = null;      // active profile
 let mastery = {};        // word -> score (0..5)
 let paper = [];          // array of word objects
 let pIdx = 0;
+const REWARDS=[["🚀","rocket"],["🏰","castle"],["🤖","robot"],["🚗","race car"],["🦖","dino"],
+  ["🌈","rainbow"],["🎡","big wheel"],["⛵","boat"],["🎸","guitar"],["🎠","carousel"],["🎢","roller coaster"]];
+const BRICKCOLORS=["#e63946","#f4a300","#ffd21f","#2a9d8f","#3a86ff","#8338ec","#ff5da2","#06d6a0"];
+let paperReward = REWARDS[0];
 let typed = [];          // units
 let practiceMode = false, practiceDone = 0;
 let paperScore = 0, paperFirstTry = 0, paperCorrect = 0, paperBestStreak = 0;
@@ -680,6 +705,7 @@ function startPaper(){
   if(paper.length===0){ alert("No words available. Add some in Parent Zone."); return; }
   pIdx=0; paperScore=0; paperFirstTry=0; paperCorrect=0; paperBestStreak=0;
   hintUsedThisPaper=false;
+  paperReward = REWARDS[(Math.random()*REWARDS.length)|0];
   $("wordtotal").textContent = paper.length;
   showScreen("game");
   $("homeBtn").classList.add("hidden");   // no leaving mid-paper
@@ -699,8 +725,28 @@ function loadWord(){
   renderPrompt();
   renderTray();
   updateHintBtn();
+  renderBuild();
   $("sayline").textContent = "Listen and build the word!";
   if(settings.autoSpeak) setTimeout(()=>speak(currentWord.w), 350);
+}
+function renderBuild(){
+  const bar=$("buildBar"); if(!bar || !paper.length) return;
+  const done=Math.min(pIdx, paper.length);
+  bar.innerHTML="";
+  for(let i=0;i<paper.length;i++){
+    const s=document.createElement("div");
+    s.className="bslot"+(i<done?" on":"")+(i===done-1?" pop":"");
+    if(i<done) s.style.background=BRICKCOLORS[i%BRICKCOLORS.length];
+    bar.appendChild(s);
+  }
+  const goal=document.createElement("div");
+  goal.className="bgoal"+(done>=paper.length?" on":"");
+  goal.textContent=paperReward[0];
+  bar.appendChild(goal);
+  const cap=$("buildCap");
+  if(cap) cap.textContent = done>=paper.length
+    ? `🎉 You built a ${paperReward[1]}!`
+    : `🔨 Build a ${paperReward[1]} — ${paper.length-done} to go!`;
 }
 function escalated(){
   return settings.escalate && currentWord.lvl>=4;
@@ -930,6 +976,8 @@ function todayRec(){
 function saveTodayRec(rec){ const dd=daysData(); dd[todayKey()]=rec; LS.set("ls.days."+profile.id, dd); }
 
 function finishPaper(){
+  renderBuild();
+  bigFlash(paperReward[0]);
   const rec=todayRec();
   rec.stars += paperScore;
   rec.papers += 1;
@@ -1021,8 +1069,12 @@ function showScreen(name){
    ========================================================= */
 function buildKeyboard(){
   const kb=$("keyboard"); kb.innerHTML="";
-  PACK.keyboard.forEach((row)=>{
-    const r=document.createElement("div"); r.className="krow";
+  // Only show the apostrophe key when a word in this paper actually needs it.
+  const needApos = paper.some(w=>/['\u2019\u2018\-]/.test(w.w));
+  let rows = PACK.keyboard.slice();
+  if(!needApos) rows = rows.map(r=>r.replace(/'/g,""));
+  rows.forEach((row,ri)=>{
+    const r=document.createElement("div"); r.className="krow"+(ri>0?(" r"+ri):"");
     row.split("").forEach(ch=>{
       const k=document.createElement("button"); k.className="key"; k.dataset.ch=ch;
       k.innerHTML=keyLabel(ch);
