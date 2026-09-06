@@ -43,14 +43,14 @@ setTimeout(() => {
   const LSget = (k)=>{ try{return JSON.parse(window.localStorage.getItem(k));}catch(e){return null;} };
 
   function currentWordFromHint(){
-    // showWord true & level<4 → hintword spans contain the letters
+    // showWord true & level<4 → hintword spans contain the letters (case may vary by level)
     const spans = [...doc.querySelectorAll("#hintword span")];
-    return spans.map(s=>s.textContent).join("");
+    return spans.map(s=>s.textContent.toLowerCase()).join("");
   }
   function typeWord(w){
     const keyEls={};
     doc.querySelectorAll("#keyboard .key").forEach(k=>{ if(k.dataset.ch && /^[a-z']$/.test(k.dataset.ch)) keyEls[k.dataset.ch]=k; });
-    for(const ch of w){ if(keyEls[ch]) keyEls[ch].click(); }
+    for(const ch of w){ const c=ch.toLowerCase(); if(keyEls[c]) keyEls[c].click(); }
   }
 
   // Boot → pick profile (auto via active) shows progress; start playing

@@ -343,6 +343,14 @@
     <button class="btn green wide" id="addPasteBtn">➕ Add pasted words as a set</button>
 
     <h3 style="margin-top:14px;">⚙️ Settings</h3>
+    <label class="field">Letter case
+      <select id="setCase" style="border-radius:10px;border:2px solid #ddd;padding:8px;">
+        <option value="auto">Auto — grows with level (CAPS → Aa → small)</option>
+        <option value="upper">CAPITALS only (ABC)</option>
+        <option value="both">Both — capital &amp; small (Aa)</option>
+        <option value="lower">small letters only (abc)</option>
+      </select>
+    </label>
     <label class="field inline"><input type="checkbox" id="setShowWord" /> Show the word as a hint (easier)</label>
     <label class="field inline"><input type="checkbox" id="setAutoSpeak" checked /> Say the word aloud automatically</label>
     <label class="field inline"><input type="checkbox" id="setEscalate" checked /> Escalate challenge at higher levels (hide word/slots)</label>
@@ -409,7 +417,8 @@ const CHEERS = ["🎉","🌟","🥳","👏","💯","🚀","🍭","😄","🎊","
 /* ---------- Global state ---------- */
 let profiles = LS.get("ls.profiles", []);
 let activeId = LS.get("ls.active", null);
-let settings = LS.get("ls.settings", { showWord:false, autoSpeak:true, escalate:true, repeats:10, voice:"" });
+let settings = LS.get("ls.settings", { showWord:false, autoSpeak:true, escalate:true, repeats:10, voice:"", caseMode:"auto" });
+if(!settings.caseMode) settings.caseMode="auto";
 let sets = LS.get("ls.sets", []); // [{id,name,enabled,words:[{w,lvl,e,cat,tags}]}]
 
 let profile = null;      // active profile
@@ -623,8 +632,9 @@ function startPaper(){
   $("wordtotal").textContent = paper.length;
   showScreen("game");
   $("homeBtn").classList.add("hidden");   // no leaving mid-paper
-  buildKeyboard();
+  lockedCase = autoCase();                // lock letter case for this paper
   loadWord();
+  buildKeyboard();
 }
 let firstAttempt=true;
 function loadWord(){
@@ -655,12 +665,47 @@ function updateHintWord(){
   const showWord = settings.showWord && !practiceMode && !escalated();
   if(practiceMode){ h.innerHTML=""; return; }
   if(showWord){
-    h.innerHTML = currentWord.w.split("").map(c=>`<span>${c}</span>`).join("");
+    h.innerHTML = currentWord.w.split("").map(c=>`<span>${caseText(c)}</span>`).join("");
   } else if(!escalated()){
     h.innerHTML = currentWord.w.split("").map(()=>`<span class="masked">_</span>`).join("");
   } else {
     h.innerHTML=""; // higher level: no length hint either
   }
+}
+/* Letter case shown to the child.
+   Progression is level-driven (level comes from age + performance):
+     Level 1        → UPPERCASE only (easiest to recognise)
+     Levels 2–3     → both, capital-led (learn the pairs, e.g. B/b, D/d)
+     Level 4+       → lowercase (real reading)
+   Parents can override in the Parent Zone (auto / upper / both / lower). */
+function autoCase(){
+  const L = currentWord ? currentLevel() : (profile ? currentLevel() : 1);
+  if(L<=1) return "upper";
+  if(L<=3) return "both";
+  return "lower";
+}
+let lockedCase=null;   // fixed for the duration of a paper so keyboard & bricks match
+function caseMode(){
+  const m = settings.caseMode || "auto";
+  if(m!=="auto") return m;
+  return lockedCase || autoCase();
+}
+function brickHTML(ch){
+  const U=ch.toUpperCase(), l=ch.toLowerCase(), mode=caseMode();
+  if(mode==="upper") return `<span class="main">${U}</span>`;
+  if(mode==="lower") return `<span class="main">${l}</span>`;
+  return `<span class="main">${U}</span><span class="cap">${l}</span>`;  // both: capital-led
+}
+function keyLabel(ch){
+  const U=ch.toUpperCase(), l=ch.toLowerCase(), mode=caseMode();
+  if(mode==="upper") return U;
+  if(mode==="lower") return l;
+  return `${U}<span class="ksm">${l}</span>`;
+}
+function caseText(s){
+  const mode=caseMode();
+  if(mode==="lower") return s.toLowerCase();
+  return s.toUpperCase();   // upper & both → show the capital form as the copy model
 }
 function renderTray(ghost){
   const tray=$("tray"); tray.innerHTML="";
@@ -673,13 +718,13 @@ function renderTray(ghost){
     if(i<typed.length){
       const b=document.createElement("div"); b.className="brick";
       const ch=typed[i];
-      b.innerHTML=`<span class="main">${ch}</span><span class="cap">${ch.toUpperCase()}</span>`;
+      b.innerHTML=brickHTML(ch);
       b.style.background = COLORS[(i+pIdx)%COLORS.length];
       b.onclick=()=>removeAt(i);
       tray.appendChild(b);
     } else {
       const s=document.createElement("div"); s.className="slot";
-      if(ghost && ghost[i]){ s.className="slot ghost"; s.textContent=ghost[i]; }
+      if(ghost && ghost[i]){ s.className="slot ghost"; s.textContent=caseText(ghost[i]); }
       tray.appendChild(s);
     }
   }
@@ -764,7 +809,7 @@ function nextWord(){
 function enterPractice(){
   practiceMode=true; practiceDone=0; typed=[];
   $("practiceArea").classList.remove("hidden");
-  $("practiceTarget").textContent=currentWord.w.toUpperCase();
+  $("practiceTarget").textContent=caseText(currentWord.w);
   updateHintWord(); renderDots(); renderTray();
   $("sayline").textContent=`Let's practice! Build "${currentWord.w}" ${settings.repeats} times.`;
   speak(currentWord.w);
@@ -914,7 +959,7 @@ function buildKeyboard(){
     const r=document.createElement("div"); r.className="krow";
     row.split("").forEach(ch=>{
       const k=document.createElement("button"); k.className="key"; k.dataset.ch=ch;
-      k.innerHTML=`${ch.toUpperCase()}<span class="ksm">${ch}</span>`;
+      k.innerHTML=keyLabel(ch);
       k.onclick=()=>{ ac(); addLetter(ch); }; r.appendChild(k);
     });
     if(ri===PACK.keyboard.length-1){
@@ -1035,6 +1080,7 @@ function openParent(){
   $("setAutoSpeak").checked=settings.autoSpeak;
   $("setEscalate").checked=settings.escalate;
   $("setRepeats").value=settings.repeats;
+  $("setCase").value=settings.caseMode||"auto";
   renderSetList();
   renderPlayerList();
   $("parentOverlay").classList.add("show");
@@ -1142,9 +1188,12 @@ $("parentSave").onclick=()=>{
   settings.autoSpeak=$("setAutoSpeak").checked;
   settings.escalate=$("setEscalate").checked;
   settings.voice=$("voiceSelect").value;
+  settings.caseMode=$("setCase").value;
   let r=parseInt($("setRepeats").value,10); settings.repeats=(isNaN(r)||r<1)?10:Math.min(20,r);
   LS.set("ls.settings", settings);
   $("parentOverlay").classList.remove("show");
+  // Reflect a case change immediately if a game is on screen.
+  if(currentWord && $("screen-game").classList.contains("active")){ buildKeyboard(); renderPrompt(); renderTray(); }
 };
 $("changePinBtn").onclick=()=>{ askPin("set"); };
 $("addPlayerBtn").onclick=()=>openProfileEditor(null);

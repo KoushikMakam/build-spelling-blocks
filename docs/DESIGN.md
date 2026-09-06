@@ -83,6 +83,11 @@ Manual, deliberate input to teach **cross-checking**:
 - **Keyboard on request** — a real keyboard is preferred. On phones/tablets, **tapping the
   build tray** focuses a hidden input so the device's built-in keyboard pops up. An
   optional on-screen LEGO keyboard sits behind the **⌨️ Keys** toggle (hidden by default).
+- **Letter case grows with the child** (auto, level-driven): **Level 1 = CAPITALS only**
+  (easiest to recognise) → **Levels 2–3 = both, capital-led** (each brick/key shows the pair,
+  e.g. `B`+`b`, so kids learn `B/D` and `b/d` differences) → **Level 4+ = lowercase** (real
+  reading). Parents can override to CAPS / both / small in the Parent Zone. Case is locked
+  for the duration of a paper so bricks and keys always match.
 - **Add** a letter: type it, or tap a key on the on-screen keyboard.
 - **Remove last** brick: `Backspace`, or the on-screen **⌫** button.
 - **Remove a specific** letter: **tap that brick** — bricks to its right shift left to
@@ -272,6 +277,7 @@ Strictly **personal** — never compared to others:
 | Presentation | Emoji/picture + spoken + word-to-copy (hideable) |
 | Check / Submit | **Two steps**: 🔍 Check = review only (no grade); ✅ Submit / Enter grades |
 | Keyboard | **On request** — real/built-in keyboard preferred; on-screen ⌨️ toggle hidden by default; tap tray to raise phone keyboard |
+| Letter case | **Auto by level**: L1 CAPITALS → L2–3 both (capital-led, teaches B/D, b/d) → L4+ lowercase; parent override; font = Verdana (clear b/d/p/q) |
 | Mid-paper | **No leaving** — 🏠 Home hidden until all 10 words are finished |
 | Correcting | Backspace / on-screen ⌫ / tap-a-brick / 🗑️ clear all |
 | Wrong answer | Practice **10×**, word visible, typo redoes just that attempt |
