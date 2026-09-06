@@ -97,6 +97,11 @@ setTimeout(() => {
   doc.getElementById("clearBtn").click();
   check("clear removes bricks", doc.querySelectorAll("#tray .brick").length === 0);
 
+  // Apostrophe support (e.g. "they're")
+  const apos = doc.querySelector("#keyboard .key[data-ch=\"'\"]");
+  check("apostrophe key present", !!apos);
+  if(apos){ apos.click(); check("apostrophe types a brick", doc.querySelectorAll("#tray .brick").length === 1); doc.getElementById("clearBtn").click(); }
+
   // Backspace behaviour
   keyEls["c"].click(); keyEls["d"].click(); keyEls["e"].click();
   doc.getElementById("backspaceBtn").click();
