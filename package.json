@@ -1,0 +1,26 @@
+{
+  "name": "lego-spelling-blocks",
+  "version": "1.0.0",
+  "description": "A gamified LEGO-brick spelling game for kids (single-file, offline, PWA).",
+  "private": true,
+  "main": "index.html",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "node smoke-test.js && node smoke-test2.js"
+  },
+  "keywords": [
+    "spelling",
+    "kids",
+    "education",
+    "game",
+    "pwa",
+    "offline"
+  ],
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "jsdom": "^30.0.1"
+  }
+}
