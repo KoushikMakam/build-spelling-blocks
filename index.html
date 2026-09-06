@@ -176,6 +176,10 @@
     font-size:clamp(50px,14vw,150px);font-weight:900;color:#fff;
     text-shadow:4px 4px 0 #d1495b,8px 8px 0 rgba(0,0,0,.2);pointer-events:none;z-index:60;opacity:0;}
   .flash.show{animation:flash 1.1s ease;}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(30px);
+    background:#2d8a00;color:#fff;font-weight:800;font-size:16px;padding:12px 22px;border-radius:14px;
+    box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:120;opacity:0;pointer-events:none;transition:.25s;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   @keyframes flash{0%{opacity:0;transform:scale(.4) rotate(-6deg);}
     30%{opacity:1;transform:scale(1.1) rotate(3deg);}70%{opacity:1;transform:scale(1);}100%{opacity:0;}}
 
@@ -334,7 +338,7 @@
     </div>
 
     <h3 style="margin-top:14px;">📚 Word sets</h3>
-    <p>Only enabled sets appear in papers. The built-in ladder is always on.</p>
+    <p>Word sets save <b>automatically</b> the moment you add, toggle, delete or set an exam date — you'll see a "Saved" note. The built-in ladder is always on; only enabled sets appear in papers.</p>
     <div class="setlist" id="setList"></div>
     <div class="inline">
       <input type="file" id="fileInput" accept=".txt,.csv" style="flex:1;font-size:13px;" />
@@ -346,6 +350,7 @@
     <button class="btn green wide" id="addPasteBtn">➕ Add pasted words as a set</button>
 
     <h3 style="margin-top:14px;">⚙️ Settings</h3>
+    <p style="margin-top:0;color:#666;font-size:13px;">These options are stored when you tap <b>✅ Save settings</b> at the bottom.</p>
     <label class="field">Letter case
       <select id="setCase" style="border-radius:10px;border:2px solid #ddd;padding:8px;">
         <option value="auto">Auto — grows with level (CAPS → Aa → small)</option>
@@ -366,7 +371,7 @@
 
     <div class="row">
       <button class="btn gray" id="parentClose">Close</button>
-      <button class="btn green" id="parentSave">✅ Save</button>
+      <button class="btn green" id="parentSave">✅ Save settings</button>
     </div>
   </div>
 </div>
@@ -389,6 +394,7 @@
 
 <canvas id="confetti"></canvas>
 <div class="flash" id="flash"></div>
+<div class="toast" id="toast"></div>
 
 <script src="words-en.js"></script>
 <script>
@@ -1108,6 +1114,9 @@ function draw(){
   else { confettiRunning=false; ctx.clearRect(0,0,canvas.width,canvas.height); }
 }
 function bigFlash(t){ const f=$("flash"); f.textContent=t; f.classList.remove("show"); void f.offsetWidth; f.classList.add("show"); }
+let _toastT=null;
+function toast(msg){ const t=$("toast"); if(!t) return; t.textContent=msg; t.classList.add("show");
+  clearTimeout(_toastT); _toastT=setTimeout(()=>t.classList.remove("show"),1600); }
 function shakeTray(){ [...$("tray").children].forEach(b=>{ if(b.classList.contains("brick")){
   b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); } }); }
 
@@ -1157,7 +1166,7 @@ function renderSetList(){
     r.appendChild(toggle); r.appendChild(del); el.appendChild(r);
   });
 }
-function saveSets(){ LS.set("ls.sets", sets); }
+function saveSets(){ LS.set("ls.sets", sets); toast("✔️ Word sets saved"); }
 
 /* ---------- File / paste parsing ---------- */
 function parseText(txt, fname){
@@ -1242,6 +1251,7 @@ $("parentSave").onclick=()=>{
   settings.caseMode=$("setCase").value;
   let r=parseInt($("setRepeats").value,10); settings.repeats=(isNaN(r)||r<1)?10:Math.min(20,r);
   LS.set("ls.settings", settings);
+  toast("✔️ Settings saved");
   $("parentOverlay").classList.remove("show");
   // Reflect a case change immediately if a game is on screen.
   if(currentWord && $("screen-game").classList.contains("active")){ buildKeyboard(); renderPrompt(); renderTray(); }
