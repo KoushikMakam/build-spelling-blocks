@@ -164,6 +164,10 @@
   .overlay{position:fixed;inset:0;background:#0008;z-index:70;display:none;
     align-items:center;justify-content:center;padding:10px;}
   .overlay.show{display:flex;}
+  /* Nested modals must sit above the Parent Zone overlay (same base z-index
+     would otherwise let later-in-DOM overlays paint on top and hide these). */
+  #profileOverlay, #previewOverlay{z-index:90;}
+  #pinOverlay{z-index:100;}
   .modal{background:#fff;border-radius:20px;padding:18px;width:min(600px,96vw);
     max-height:92vh;overflow:auto;box-shadow:0 12px 40px #0006;}
   .modal h2{margin:0 0 8px;color:#d1495b;}
@@ -1168,6 +1172,17 @@ function wrongSound(){ tone(220,0.2,"sawtooth",0,0.14); tone(160,0.25,"sawtooth"
 let voices=[];
 function loadVoices(){ voices = window.speechSynthesis ? speechSynthesis.getVoices() : []; }
 if(window.speechSynthesis){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; }
+// Mobile browsers (esp. iOS) block speech until it is "unlocked" by a real user
+// gesture. Fire a silent utterance on the first tap so later auto-speak works.
+let speechUnlocked=false;
+function unlockSpeech(){
+  if(speechUnlocked || !window.speechSynthesis) return;
+  try{ const u=new SpeechSynthesisUtterance(""); u.volume=0;
+    speechSynthesis.speak(u); speechSynthesis.resume(); loadVoices(); speechUnlocked=true; }catch(e){}
+}
+document.addEventListener("pointerdown", unlockSpeech);
+document.addEventListener("touchend", unlockSpeech);
+document.addEventListener("keydown", unlockSpeech);
 function pickVoice(){
   if(!voices.length) loadVoices();
   if(settings.voice){ const v=voices.find(v=>v.name===settings.voice); if(v) return v; }
@@ -1182,6 +1197,7 @@ function speak(word){
     const u=new SpeechSynthesisUtterance(word); u.rate=0.8; u.pitch=1.1;
     const v=pickVoice(); if(v){ u.voice=v; u.lang=v.lang; } else u.lang=PACK.code;
     speechSynthesis.speak(u);
+    speechSynthesis.resume();   // guard against Chrome's stuck-paused bug
   }catch(e){}
 }
 

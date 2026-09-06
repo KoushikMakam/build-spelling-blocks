@@ -1,5 +1,5 @@
 /* Build Spelling Blocks — service worker (offline caching) */
-const CACHE = "build-spelling-v7";
+const CACHE = "build-spelling-v8";
 const ASSETS = [
   "./",
   "./index.html",
