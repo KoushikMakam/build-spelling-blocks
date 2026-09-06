@@ -275,7 +275,9 @@
 
       <div class="tray" id="tray" title="Tap here to type"></div>
       <input id="typeCatcher" type="text" autocomplete="off" autocorrect="off"
-             autocapitalize="off" spellcheck="false" inputmode="text" aria-hidden="true" />
+             autocapitalize="none" spellcheck="false" inputmode="text" enterkeyhint="done"
+             name="nope" data-lpignore="true" data-1p-ignore data-form-type="other"
+             aria-hidden="true" />
       <div class="taphint" id="tapHint">👆 Tap the blocks to type with your keyboard</div>
 
       <div class="controls">
@@ -1136,15 +1138,32 @@ window.addEventListener("keydown",(e)=>{
    Tapping the tray focuses it so the phone keyboard appears. */
 (function setupTypeCatcher(){
   const tc=$("typeCatcher");
+  // Keep a sentinel char in the field so a soft-keyboard Backspace always deletes
+  // *something* and fires an input event — many Android keyboards emit no keydown
+  // for Backspace, and none at all when the field is empty.
+  const SENT="\u00A0";                     // non-breaking space (never a valid letter)
+  function reset(){ tc.value=SENT; try{ tc.setSelectionRange(SENT.length,SENT.length); }catch(_){} }
+  reset();
   tc.addEventListener("input",()=>{
-    const v=tc.value; tc.value="";
-    for(const ch of v){ if(/[a-zA-Z'\u2019\u2018-]/.test(ch)){ ac(); addLetter(ch); } }
+    const v=tc.value;
+    if(v.length < SENT.length){            // sentinel was deleted → Backspace
+      removeLast();
+    } else {
+      const added=v.slice(SENT.length);    // everything typed after the sentinel
+      for(const ch of added){
+        if(ch==="\n"||ch==="\r"){ submit(); }
+        else if(/[a-zA-Z'\u2019\u2018-]/.test(ch)){ ac(); addLetter(ch); }
+      }
+    }
+    reset();
   });
+  // Physical/Bluetooth keyboards emit reliable keydowns; preventDefault stops the
+  // input-based deletion so Backspace is never handled twice.
   tc.addEventListener("keydown",(e)=>{
-    if(e.key==="Backspace"){ e.preventDefault(); removeLast(); }
-    else if(e.key==="Enter"){ e.preventDefault(); submit(); }
+    if(e.key==="Enter"){ e.preventDefault(); submit(); }
+    else if(e.key==="Backspace"){ e.preventDefault(); removeLast(); }
   });
-  function focusCatcher(){ try{ tc.focus({preventScroll:true}); }catch(_){ tc.focus(); } }
+  function focusCatcher(){ reset(); try{ tc.focus({preventScroll:true}); }catch(_){ tc.focus(); } }
   $("tray").addEventListener("click", focusCatcher);
   $("tapHint").addEventListener("click", focusCatcher);
 })();

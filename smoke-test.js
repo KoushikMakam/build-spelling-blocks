@@ -123,6 +123,18 @@ setTimeout(() => {
   doc.querySelectorAll("#tray .brick")[0].click();
   check("tap-brick removes that brick", doc.querySelectorAll("#tray .brick").length === 1);
 
+  // Mobile soft-keyboard path: Android backspace often emits NO keydown, so the
+  // hidden input uses a sentinel char and detects deletion via the input event.
+  doc.getElementById("clearBtn").click();
+  const tc = doc.getElementById("typeCatcher"); tc.focus();
+  const SENT = "\u00A0";
+  const fireTC = (v) => { tc.value = v; tc.dispatchEvent(new window.Event("input", { bubbles: true })); };
+  fireTC(SENT + "a"); fireTC(SENT + "b");
+  check("mobile keyboard types bricks", doc.querySelectorAll("#tray .brick").length === 2);
+  fireTC("");   // sentinel deleted == soft-keyboard backspace
+  check("mobile backspace removes a brick", doc.querySelectorAll("#tray .brick").length === 1);
+  doc.getElementById("clearBtn").click();
+
   // Parent PIN gate: first entry should prompt to set a new PIN
   doc.getElementById("homeBtn").click();
   doc.getElementById("parentBtn").click();
