@@ -99,7 +99,11 @@
     40%{transform:translateX(8px);}60%{transform:translateX(-6px);}80%{transform:translateX(6px);}}
 
   /* Controls */
-  .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .controls{display:flex;flex-direction:column;gap:9px;align-items:center;width:100%;max-width:560px;}
+  .controls-main{display:flex;gap:10px;width:100%;justify-content:center;}
+  .controls-main .btn{flex:1 1 0;max-width:230px;}
+  .controls-help{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  .controls-help .btn{font-size:15px;padding:9px 15px;}
 
   /* On-screen keyboard */
   .keyboard{--kw:clamp(26px,7.6vw,46px);--kh:clamp(42px,10.5vw,52px);--kg:5px;
@@ -266,12 +270,16 @@
       <div class="taphint" id="tapHint">👆 Tap the blocks to type with your keyboard</div>
 
       <div class="controls">
-        <button class="btn big" id="checkBtn">🔍 Check</button>
-        <button class="btn green big" id="submitBtn">✅ Submit</button>
-        <button class="btn gray" id="backspaceBtn">⌫</button>
-        <button class="btn gray" id="clearBtn">🗑️ Clear</button>
-        <button class="btn pink" id="hintBtn">💡 Hint</button>
-        <button class="btn gray" id="kbToggle">⌨️ Keys</button>
+        <div class="controls-main">
+          <button class="btn big" id="checkBtn">🔍 Check</button>
+          <button class="btn green big" id="submitBtn">✅ Submit</button>
+        </div>
+        <div class="controls-help">
+          <button class="btn gray" id="backspaceBtn">⌫ Undo</button>
+          <button class="btn gray" id="clearBtn">🗑️ Clear</button>
+          <button class="btn pink" id="hintBtn">💡 Hint</button>
+          <button class="btn gray" id="kbToggle">⌨️ Keys</button>
+        </div>
       </div>
 
       <div class="keyboard hidden" id="keyboard"></div>

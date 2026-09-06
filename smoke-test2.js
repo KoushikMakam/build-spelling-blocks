@@ -94,12 +94,12 @@ setTimeout(() => {
                             || doc.getElementById("screen-paper").classList.contains("active");
             check("moved past word after practice", movedOn);
             finish();
-          }, 700);
+          }, 1500);
           return;
         }
         typeWord(w2);
         doc.getElementById("submitBtn").click();
-        realST(()=>doRep(i+1), 1000);
+        realST(()=>doRep(i+1), 1400);
       }
       doRep(0);
 
