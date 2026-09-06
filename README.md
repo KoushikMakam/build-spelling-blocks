@@ -66,7 +66,8 @@ it in a browser (or host it free on GitHub Pages and "Add to Home Screen" as an 
 | Remove last brick | `Backspace` | ⌫ button |
 | Remove a specific letter | — | tap that brick |
 | Clear the whole word | — | 🗑️ Clear |
-| Check / submit | `Enter` | ✅ Check button |
+| Check your work | — | 🔍 Check button |
+| Submit for grading | `Enter` | ✅ Submit button |
 | Hear the word again | — | 🔊 button (free, unlimited) |
 
 - Empty brick **slots show the letter count** (until higher levels hide them).
@@ -94,10 +95,15 @@ Behind a **PIN** (set on first use, stored locally):
 
 ```
 LOGO-SPELLINGS/
-├── index.html              # The entire game (HTML + CSS + JS + word bank)
+├── index.html              # The game engine + UI (HTML + CSS + JS)
+├── words-en.js             # English word bank (~3000 graded words, L1–6)
 ├── manifest.webmanifest    # PWA manifest (installable app)
 ├── service-worker.js       # Offline caching for the PWA
 ├── icons/                  # App icons
+├── serve.js                # Tiny local static server (optional dev use)
+├── package.json            # Dev scripts + test runner (jsdom)
+├── smoke-test.js           # UI/build smoke tests
+├── smoke-test2.js          # End-to-end play-flow tests
 ├── README.md               # This file
 └── docs/
     ├── DESIGN.md           # Full design spec & all decisions (the source of truth)

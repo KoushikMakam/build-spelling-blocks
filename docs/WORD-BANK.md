@@ -2,8 +2,8 @@
 
 ## Built-in graded ladder
 
-The game ships with a graded word ladder (Grade 1 → 6+) baked into `index.html`.
-Each entry has:
+The game ships with a graded word ladder (Grade 1 → 6+) of **~3000 kid-safe words**
+in `words-en.js` (loaded by `index.html`; minified). Each entry has:
 
 ```js
 { w: "elephant", lvl: 3, e: "🐘", cat: "animals", tags: [] }
