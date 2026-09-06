@@ -1,5 +1,5 @@
 /* LEGO Spelling Blocks — service worker (offline caching) */
-const CACHE = "lego-spelling-v2";
+const CACHE = "lego-spelling-v3";
 const ASSETS = [
   "./",
   "./index.html",
