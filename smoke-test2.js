@@ -49,7 +49,7 @@ setTimeout(() => {
   }
   function typeWord(w){
     const keyEls={};
-    doc.querySelectorAll("#keyboard .key").forEach(k=>{ if(/^[a-z']$/.test(k.textContent)) keyEls[k.textContent]=k; });
+    doc.querySelectorAll("#keyboard .key").forEach(k=>{ if(k.dataset.ch && /^[a-z']$/.test(k.dataset.ch)) keyEls[k.dataset.ch]=k; });
     for(const ch of w){ if(keyEls[ch]) keyEls[ch].click(); }
   }
 

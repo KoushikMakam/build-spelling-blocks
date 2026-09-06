@@ -81,7 +81,7 @@ setTimeout(() => {
 
   // Type letters via on-screen keys should add bricks
   const keys = {};
-  doc.querySelectorAll("#keyboard .key").forEach(k => { keys[k.textContent] = k; });
+  doc.querySelectorAll("#keyboard .key").forEach(k => { if(k.dataset.ch) keys[k.dataset.ch] = k; });
   // Figure out the current word by reading the number of slots
   const slotCount = doc.querySelectorAll("#tray .slot").length;
   check("word has >=1 slot", slotCount >= 1);
@@ -91,7 +91,7 @@ setTimeout(() => {
   // so instead type letters matching the number of slots from the hint if visible,
   // else just verify typing adds bricks and clear works.
   const keyEls = {};
-  doc.querySelectorAll("#keyboard .key").forEach(k => { if(/^[a-z]$/.test(k.textContent)) keyEls[k.textContent] = k; });
+  doc.querySelectorAll("#keyboard .key").forEach(k => { if(k.dataset.ch && /^[a-z]$/.test(k.dataset.ch)) keyEls[k.dataset.ch] = k; });
   keyEls["a"].click(); keyEls["b"].click();
   check("typing adds bricks", doc.querySelectorAll("#tray .brick").length === 2);
   doc.getElementById("clearBtn").click();

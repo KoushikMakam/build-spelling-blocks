@@ -13,7 +13,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;height:100%;
-    font-family:"Comic Sans MS","Baloo 2","Trebuchet MS",sans-serif;
+    font-family:"Verdana","Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
     background:radial-gradient(circle at 20% 15%,#ffe680 0%,#ffd23f 25%,#ff8c42 60%,#ee6055 100%);
     color:#23252b;overflow:hidden;-webkit-user-select:none;user-select:none;
     -webkit-tap-highlight-color:transparent;}
@@ -78,10 +78,13 @@
     font-weight:900;color:#ffffff88;}
   .brick{position:relative;width:var(--brick-w);height:var(--brick-h);border-radius:8px;
     display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:900;
-    color:#fff;text-transform:uppercase;cursor:pointer;
+    color:#fff;cursor:pointer;
     text-shadow:2px 2px 0 rgba(0,0,0,.25);
     box-shadow:inset -6px -8px 0 rgba(0,0,0,.18),inset 6px 6px 0 rgba(255,255,255,.28),0 6px 0 rgba(0,0,0,.18);
     animation:drop .3s cubic-bezier(.2,1.4,.5,1);}
+  .brick .main{font-size:34px;line-height:1;}
+  .brick .cap{position:absolute;bottom:3px;right:6px;font-size:13px;font-weight:900;
+    opacity:.92;text-shadow:1px 1px 0 rgba(0,0,0,.28);}
   .brick::before,.brick::after{content:"";position:absolute;top:calc(var(--stud)*-0.5);
     width:var(--stud);height:var(--stud);border-radius:50%;background:inherit;
     box-shadow:inset -2px -3px 0 rgba(0,0,0,.22),inset 2px 2px 0 rgba(255,255,255,.35);}
@@ -99,9 +102,10 @@
   /* On-screen keyboard */
   .keyboard{display:flex;flex-direction:column;gap:5px;align-items:center;width:100%;max-width:640px;}
   .krow{display:flex;gap:5px;justify-content:center;}
-  .key{min-width:34px;height:44px;padding:0 8px;border-radius:8px;border:none;cursor:pointer;
+  .key{min-width:40px;height:44px;padding:0 8px;border-radius:8px;border:none;cursor:pointer;
     font-family:inherit;font-weight:900;font-size:17px;color:#fff;background:var(--theme);
-    box-shadow:0 4px 0 var(--theme2);text-transform:uppercase;}
+    box-shadow:0 4px 0 var(--theme2);}
+  .key .ksm{font-size:12px;opacity:.85;margin-left:1px;}
   .key:active{transform:translateY(3px);box-shadow:0 1px 0 var(--theme2);}
   .key.util{background:#8a8f99;box-shadow:0 4px 0 #6b7079;font-size:15px;}
   .keyboard.hidden{display:none;}
@@ -667,7 +671,9 @@ function renderTray(ghost){
   const shown = showSlots ? units.length : typed.length + 1;
   for(let i=0;i<shown;i++){
     if(i<typed.length){
-      const b=document.createElement("div"); b.className="brick"; b.textContent=typed[i];
+      const b=document.createElement("div"); b.className="brick";
+      const ch=typed[i];
+      b.innerHTML=`<span class="main">${ch}</span><span class="cap">${ch.toUpperCase()}</span>`;
       b.style.background = COLORS[(i+pIdx)%COLORS.length];
       b.onclick=()=>removeAt(i);
       tray.appendChild(b);
@@ -907,7 +913,8 @@ function buildKeyboard(){
   PACK.keyboard.forEach((row,ri)=>{
     const r=document.createElement("div"); r.className="krow";
     row.split("").forEach(ch=>{
-      const k=document.createElement("button"); k.className="key"; k.textContent=ch;
+      const k=document.createElement("button"); k.className="key"; k.dataset.ch=ch;
+      k.innerHTML=`${ch.toUpperCase()}<span class="ksm">${ch}</span>`;
       k.onclick=()=>{ ac(); addLetter(ch); }; r.appendChild(k);
     });
     if(ri===PACK.keyboard.length-1){
