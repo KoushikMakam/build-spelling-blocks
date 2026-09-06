@@ -180,6 +180,10 @@
     background:#2d8a00;color:#fff;font-weight:800;font-size:16px;padding:12px 22px;border-radius:14px;
     box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:120;opacity:0;pointer-events:none;transition:.25s;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .starbadge{display:inline-block;margin-bottom:6px;padding:4px 14px;border-radius:999px;
+    background:linear-gradient(90deg,#ffd54a,#ff9e2c);color:#5b3d00;font-weight:900;font-size:15px;
+    box-shadow:0 3px 0 rgba(0,0,0,.12);animation:starpulse 1.4s ease-in-out infinite;}
+  @keyframes starpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
   @keyframes flash{0%{opacity:0;transform:scale(.4) rotate(-6deg);}
     30%{opacity:1;transform:scale(1.1) rotate(3deg);}70%{opacity:1;transform:scale(1);}100%{opacity:0;}}
 
@@ -215,6 +219,7 @@
 
     <div class="stage">
       <div class="prompt card">
+        <div class="starbadge hidden" id="starBadge">⭐ Star word</div>
         <div class="emoji" id="promptVisual">🐱</div>
         <div class="hintword" id="hintword"></div>
         <div class="sayline" id="sayline">Listen and build the word!</div>
@@ -696,10 +701,12 @@ function loadWord(){
 function escalated(){
   return settings.escalate && currentWord.lvl>=4;
 }
+function isStarWord(){ return !!(currentWord && currentWord._src==="parent"); }
 function renderPrompt(){
   const v=$("promptVisual");
   if(currentWord.e){ v.textContent=currentWord.e; v.className="emoji"; }
   else { v.textContent="🔤"; v.className="emoji spellcard"; }
+  const sb=$("starBadge"); if(sb) sb.classList.toggle("hidden", !isStarWord());
   updateHintWord();
 }
 function updateHintWord(){
@@ -832,11 +839,20 @@ function onCorrect(){
   paperCorrect++;
   let pts=10;
   if(firstAttempt){ pts+=5; paperFirstTry++; }   // first-try bonus star
+  const star=isStarWord();
+  if(star) pts+=3;                                 // star/exam words are worth a little more
   score+=pts; paperScore+=pts; streak++;
   paperBestStreak=Math.max(paperBestStreak,streak);
   bumpMastery(currentWord.w, firstAttempt?+2:+1);
   $("score").textContent=score; $("streak").textContent=streak;
-  winSound(); launchConfetti(); bigFlash(CHEERS[(Math.random()*CHEERS.length)|0]);
+  winSound();
+  if(star){
+    launchConfetti(true); bigFlash("⭐ Star word!");
+    setTimeout(()=>bigFlash(CHEERS[(Math.random()*CHEERS.length)|0]),700);
+    setTimeout(nextWord, 1500);
+    return;
+  }
+  launchConfetti(); bigFlash(CHEERS[(Math.random()*CHEERS.length)|0]);
   setTimeout(nextWord, 1100);
 }
 function onWrong(){
