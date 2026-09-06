@@ -1,7 +1,7 @@
 {
-  "name": "LEGO Spelling Blocks",
-  "short_name": "Spelling",
-  "description": "A gamified LEGO-brick spelling game for kids.",
+  "name": "Build Spelling Blocks",
+  "short_name": "SPELLING BLOCKS",
+  "description": "A gamified brick spelling game for kids.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

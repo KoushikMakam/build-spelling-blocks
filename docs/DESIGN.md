@@ -1,4 +1,4 @@
-# 🧱 LEGO Spelling Blocks — Design Document
+# 🧱 Build Spelling Blocks — Design Document
 
 > This is the **source of truth** for the project. It captures every design decision,
 > the reasoning behind it, and how the pieces fit together. Written from the
@@ -9,7 +9,7 @@
 ## 1. Vision
 
 A **gamified, self-teaching spelling game** for a child (initially ~7–8 years old).
-The child sees/hears a word, then **builds it out of LEGO bricks** — each key press or
+The child sees/hears a word, then **builds it out of bricks** — each key press or
 tap drops a brick stamped with a letter. The child **checks their own work** and submits.
 Learning is reinforced through celebration, encouraging repetition on mistakes, and a
 **personal progress journey** ("him vs. him") so the child can see themselves improving.
@@ -28,8 +28,8 @@ discourage.* Mistakes lead to friendly practice, never failure states.
    - A **word-to-copy** hint may show (hidden automatically at higher levels).
    - Empty **brick slots** indicate the letter count (also hidden at higher levels).
 3. The child taps the **build tray** to bring up their keyboard (physical on desktop,
-   built-in soft keyboard on phones/tablets) and types. Each input **drops a LEGO brick**
-   with that letter into the tray. An optional on-screen LEGO keyboard is available behind
+   built-in soft keyboard on phones/tablets) and types. Each input **drops a brick**
+   with that letter into the tray. An optional on-screen brick keyboard is available behind
    the **⌨️ Keys** toggle (hidden by default — a real keyboard is preferred).
 4. The child **corrects** freely (see §5) — nothing is graded yet.
 5. **🔍 Check** and **✅ Submit** are **two separate steps**:
@@ -82,7 +82,7 @@ Manual, deliberate input to teach **cross-checking**:
 
 - **Keyboard on request** — a real keyboard is preferred. On phones/tablets, **tapping the
   build tray** focuses a hidden input so the device's built-in keyboard pops up. An
-  optional on-screen LEGO keyboard sits behind the **⌨️ Keys** toggle (hidden by default).
+  optional on-screen brick keyboard sits behind the **⌨️ Keys** toggle (hidden by default).
 - **Letter case grows with the child** (auto, level-driven): **Level 1 = CAPITALS only**
   (easiest to recognise) → **Levels 2–3 = both, capital-led** (each brick/key shows the pair,
   e.g. `B`+`b`, so kids learn `B/D` and `b/d` differences) → **Level 4+ = lowercase** (real
@@ -165,7 +165,7 @@ Each paper = **10 words**, chosen by a smart selector (not pure random):
 - **Single player → straight in**: if only one player exists, the app **skips the
   "Who's playing?" picker** on launch and goes directly to their Start screen. With two or
   more players, the picker is shown so the child selects themselves.
-- Each profile captures: **Name**, **Date of Birth**, **Avatar** (LEGO minifigure/emoji),
+- Each profile captures: **Name**, **Date of Birth**, **Avatar** (minifigure/emoji),
   **Favourite colour** (themes the bricks).
 - **Age is computed from DOB** every session (never stored stale), so the child
   **auto-ages up** — the starting level nudges up on birthdays with no manual edits.
@@ -247,7 +247,7 @@ Strictly **personal** — never compared to others:
 ## 14. Platforms & delivery
 
 - **Single `index.html`** — double-click to play on a computer; no install/build.
-- **Responsive** — works on desktop keyboard **and** tablet/phone (on-screen LEGO
+- **Responsive** — works on desktop keyboard **and** tablet/phone (on-screen brick
   keyboard, large touch targets, portrait/landscape).
 - **PWA** — `manifest.webmanifest` + `service-worker.js` make it **installable to the
   home screen**, fullscreen (kid-safe, no browser bar), and **offline after first load**.

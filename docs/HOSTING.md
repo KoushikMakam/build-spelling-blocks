@@ -3,19 +3,21 @@
 The game runs by double-clicking `index.html`, but hosting it (free) gives the best
 phone experience: a shareable link, "Add to Home Screen" app icon, and offline use.
 
+> **This project is already live:** https://koushikmakam.github.io/build-spelling-blocks/
+
 ## Publish free on GitHub Pages
 
-1. Create a new **public** repo on GitHub (e.g. `lego-spelling`).
+1. Create a new **public** repo on GitHub (e.g. `build-spelling-blocks`).
 2. Push this project to it:
    ```bash
-   git remote add origin https://github.com/<you>/lego-spelling.git
+   git remote add origin https://github.com/<you>/build-spelling-blocks.git
    git branch -M main
    git push -u origin main
    ```
 3. On GitHub: **Settings → Pages**.
 4. Under **Build and deployment → Source**, choose **Deploy from a branch**.
 5. Branch: **main**, folder: **/ (root)**. Save.
-6. Wait ~1 minute. Your link appears: `https://<you>.github.io/lego-spelling/`.
+6. Wait ~1 minute. Your link appears: `https://<you>.github.io/build-spelling-blocks/`.
 
 That link opens the game on any device.
 

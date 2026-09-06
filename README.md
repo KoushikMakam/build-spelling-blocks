@@ -1,6 +1,6 @@
-# 🧱 LEGO Spelling Blocks
+# 🧱 Build Spelling Blocks
 
-A gamified, offline spelling game for kids. Press a key (or tap) and a **LEGO brick
+A gamified, offline spelling game for kids. Press a key (or tap) and a **brick
 stamped with that letter drops** into a build tray. The child builds the word,
 **checks their own work**, and submits. Correct spellings are celebrated; a wrong
 spelling sends them into **practice mode** (build the word 10 times) before moving on.
@@ -12,7 +12,7 @@ it in a browser (or host it free on GitHub Pages and "Add to Home Screen" as an 
 
 ## ✨ Features
 
-- 🧱 **LEGO-brick letters** — every key press drops a colourful brick with a stud top.
+- 🧱 **brick letters** — every key press drops a colourful brick with a stud top.
 - 🔊 **Multi-sensory prompts** — picture/emoji **+** the word spoken aloud **+** a
   word-to-copy hint (which hides itself at higher levels).
 - ✅ **Manual check & submit** — no auto-check. Teaches the child to **cross-check**
@@ -62,7 +62,7 @@ it in a browser (or host it free on GitHub Pages and "Add to Home Screen" as an 
 
 | Action | Keyboard | Touch |
 |---|---|---|
-| Drop a letter brick | `A`–`Z` | tap on-screen LEGO key |
+| Drop a letter brick | `A`–`Z` | tap on-screen brick key |
 | Remove last brick | `Backspace` | ⌫ button |
 | Remove a specific letter | — | tap that brick |
 | Clear the whole word | — | 🗑️ Clear |
@@ -135,5 +135,5 @@ language picker or as separate files (`spelling-hindi.html`). See
 
 ## 📜 License
 
-For personal/family educational use. See [docs/DESIGN.md](docs/DESIGN.md) for the
-full rationale behind every design decision.
+Licensed under the **MIT License** — see [LICENSE](LICENSE). See
+[docs/DESIGN.md](docs/DESIGN.md) for the full rationale behind every design decision.

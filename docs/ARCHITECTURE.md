@@ -9,7 +9,7 @@ Everything lives in **`index.html`** as three layers inside one file:
 
 ```
 index.html
-├── <style>   … all CSS (theme, LEGO bricks, screens, animations)
+├── <style>   … all CSS (theme, bricks, screens, animations)
 ├── markup    … every "screen" as a hidden <section>, shown one at a time by JS
 └── <script>  … the engine + the English language pack + the word bank data
 ```
@@ -38,7 +38,7 @@ ENGINE (language-agnostic)                LANGUAGE PACK (per language)
 ### The "unit" abstraction
 A word is modelled as an **ordered list of units**, not raw characters. In English a
 unit is a single letter. In Devanagari/Kannada a unit is a **syllable/akshara** (a
-consonant plus its matra/vowel sign). Each LEGO brick holds **one unit**. This means
+consonant plus its matra/vowel sign). Each brick holds **one unit**. This means
 the brick/keyboard/check logic never assumes "1 char = 1 brick", so syllabic scripts
 slot in by supplying a different `splitIntoUnits()` and keyboard layout — **no engine
 rewrite**.

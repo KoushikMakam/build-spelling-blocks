@@ -1,7 +1,7 @@
 {
-  "name": "lego-spelling-blocks",
+  "name": "build-spelling-blocks",
   "version": "1.0.0",
-  "description": "A gamified LEGO-brick spelling game for kids (single-file, offline, PWA).",
+  "description": "A gamified brick spelling game for kids (single-file, offline, PWA).",
   "private": true,
   "main": "index.html",
   "directories": {
@@ -18,7 +18,7 @@
     "pwa",
     "offline"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
     "jsdom": "^30.0.1"

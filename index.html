@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
 <meta name="theme-color" content="#ffd23f" />
 <link rel="manifest" href="manifest.webmanifest" />
-<title>🧱 LEGO Spelling Blocks</title>
+<title>🧱 Build Spelling Blocks</title>
 <style>
   :root{
     --stud:14px; --brick-h:70px; --brick-w:58px;
@@ -42,6 +42,8 @@
   .title{font-size:clamp(24px,5vw,44px);font-weight:900;color:#fff;
     text-shadow:3px 3px 0 #d1495b,5px 5px 0 rgba(0,0,0,.15);letter-spacing:1px;text-align:center;}
   .sub{color:#fff;font-weight:700;text-shadow:1px 1px 0 rgba(0,0,0,.15);text-align:center;}
+  .brand-credit{margin-top:20px;font-size:12px;font-weight:700;color:#ffffffcc;
+    text-shadow:1px 1px 0 rgba(0,0,0,.15);letter-spacing:.3px;text-align:center;}
 
   /* ---------- Home / Profiles ---------- */
   #screen-home{justify-content:center;gap:16px;}
@@ -223,10 +225,11 @@
 
   <!-- ============ HOME / PROFILES ============ -->
   <section id="screen-home" class="screen active">
-    <div class="title">🧱 LEGO Spelling Blocks</div>
+    <div class="title">🧱 Build Spelling Blocks</div>
     <div class="sub" style="margin-bottom:8px;">Who's playing today?</div>
     <div class="profile-grid" id="profileGrid"></div>
     <button class="btn pink" id="parentBtn" style="margin-top:14px;">🔒 Parent Zone</button>
+    <div class="brand-credit">Made by Koushik A Makam</div>
   </section>
 
   <!-- ============ GAME ============ -->
@@ -441,7 +444,7 @@
 <script>
 "use strict";
 /* =========================================================
-   LEGO Spelling Blocks — engine (English pack)
+   Build Spelling Blocks — engine (English pack)
    ========================================================= */
 const $ = (id) => document.getElementById(id);
 const LS = {
