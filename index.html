@@ -697,6 +697,13 @@ function buildPaper(){
   const examBag = examW.map(w=>({w, wt:weightFor(w,lvl)})).sort((a,b)=>b.wt-a.wt);
   for(let i=0;i<reserve && examBag.length;i++){ const w=examBag.shift().w; picks.push(w); chosen.add(w.w); }
 
+  // Guarantee parent (star) words appear even against a large built-in bank.
+  const parentBag = candidates
+    .filter(w => w._src==="parent" && !chosen.has(w.w))
+    .map(w=>({w, wt:weightFor(w,lvl)})).sort((a,b)=>b.wt-a.wt);
+  const parentReserve = Math.min(parentBag.length, 3, 10 - picks.length);
+  for(let i=0;i<parentReserve;i++){ const w=parentBag.shift().w; picks.push(w); chosen.add(w.w); }
+
   // Fill the rest by weighted sampling without replacement.
   let bag = candidates.filter(w=>!chosen.has(w.w)).map(w=>({w, wt:weightFor(w,lvl)*(0.6+pf*0.8)}));
   while(picks.length<10 && bag.length){
