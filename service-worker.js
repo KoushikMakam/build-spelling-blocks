@@ -1,5 +1,5 @@
 /* LEGO Spelling Blocks — service worker (offline caching) */
-const CACHE = "lego-spelling-v1";
+const CACHE = "lego-spelling-v2";
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,6 +25,30 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+  const url = new URL(e.request.url);
+  const isApp =
+    e.request.mode === "navigate" ||
+    url.pathname.endsWith("/") ||
+    url.pathname.endsWith(".html") ||
+    url.pathname.endsWith(".js");
+
+  // App shell (HTML/JS): network-first so updates show up right away.
+  if (isApp) {
+    e.respondWith(
+      fetch(e.request)
+        .then((res) => {
+          if (res && res.status === 200 && res.type === "basic") {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Other assets (icons, manifest): cache-first.
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const net = fetch(e.request)

@@ -65,7 +65,7 @@ setTimeout(() => {
   // Type correct word and submit
   typeWord(w1);
   check("typed full word", doc.querySelectorAll("#tray .brick").length === w1.length);
-  doc.getElementById("checkBtn").click();
+  doc.getElementById("submitBtn").click();
 
   // The submit chain uses setTimeout; wait for it.
   realST(() => {
@@ -79,7 +79,7 @@ setTimeout(() => {
     // type a deliberately wrong word (append 'z')
     typeWord("z");
     // pad to at least 1 letter already done; submit wrong
-    doc.getElementById("checkBtn").click();
+    doc.getElementById("submitBtn").click();
     realST(() => {
       check("practice banner shown after wrong", !doc.getElementById("practiceArea").classList.contains("hidden"));
       check("practice target matches word", doc.getElementById("practiceTarget").textContent.toLowerCase() === w2.toLowerCase());
@@ -98,7 +98,7 @@ setTimeout(() => {
           return;
         }
         typeWord(w2);
-        doc.getElementById("checkBtn").click();
+        doc.getElementById("submitBtn").click();
         realST(()=>doRep(i+1), 1000);
       }
       doRep(0);

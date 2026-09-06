@@ -32,6 +32,8 @@
   .btn.big{font-size:20px;padding:14px 26px;border-radius:18px;}
   .btn.wide{width:100%;}
   .btn:disabled{opacity:.45;cursor:default;}
+  .btn.ready{animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
 
   .card{background:#ffffffe6;border:5px solid #fff;border-radius:24px;
     padding:18px;box-shadow:0 8px 0 rgba(0,0,0,.12);}
@@ -102,7 +104,13 @@
     box-shadow:0 4px 0 var(--theme2);text-transform:uppercase;}
   .key:active{transform:translateY(3px);box-shadow:0 1px 0 var(--theme2);}
   .key.util{background:#8a8f99;box-shadow:0 4px 0 #6b7079;font-size:15px;}
-  .key.ok{background:#38b000;box-shadow:0 4px 0 #2d8a00;}
+  .keyboard.hidden{display:none;}
+  #typeCatcher{position:fixed;bottom:0;left:0;width:100%;height:38px;opacity:0.01;
+    font-size:16px;border:none;background:transparent;color:transparent;z-index:1;
+    pointer-events:none;caret-color:transparent;}
+  .taphint{color:#fff;font-weight:800;font-size:13px;text-shadow:1px 1px 0 rgba(0,0,0,.15);
+    text-align:center;opacity:.9;}
+  .taphint.hidden{display:none;}
 
   /* Practice */
   .practice-banner{background:#fff3;border:4px solid #fff;border-radius:16px;padding:8px 16px;
@@ -209,20 +217,25 @@
         </div>
       </div>
 
-      <div class="tray" id="tray"></div>
+      <div class="tray" id="tray" title="Tap here to type"></div>
+      <input id="typeCatcher" type="text" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" inputmode="text" aria-hidden="true" />
+      <div class="taphint" id="tapHint">👆 Tap the blocks to type with your keyboard</div>
 
       <div class="controls">
-        <button class="btn green big" id="checkBtn">✅ Check</button>
+        <button class="btn big" id="checkBtn">🔍 Check</button>
+        <button class="btn green big" id="submitBtn">✅ Submit</button>
         <button class="btn gray" id="backspaceBtn">⌫</button>
         <button class="btn gray" id="clearBtn">🗑️ Clear</button>
         <button class="btn pink" id="hintBtn">💡 Hint</button>
+        <button class="btn gray" id="kbToggle">⌨️ Keys</button>
       </div>
 
-      <div class="keyboard" id="keyboard"></div>
+      <div class="keyboard hidden" id="keyboard"></div>
     </div>
 
     <div class="foot">
-      <kbd>A</kbd>–<kbd>Z</kbd> drop • <kbd>⌫</kbd> remove • tap a brick to remove it • <kbd>⏎</kbd> check
+      Type with your keyboard • <kbd>⌫</kbd> remove • tap a brick to remove it • <kbd>🔍 Check</kbd> then <kbd>⏎ Submit</kbd>
     </div>
   </section>
 
@@ -302,7 +315,12 @@
   <div class="modal">
     <h2>🔒 Parent Zone</h2>
 
-    <h3>🗣️ Voice</h3>
+    <h3>👦 Players</h3>
+    <p>Add and manage who can play. Each player keeps their own progress.</p>
+    <div class="setlist" id="playerList"></div>
+    <button class="btn green wide" id="addPlayerBtn">➕ Add player</button>
+
+    <h3 style="margin-top:14px;">🗣️ Voice</h3>
     <div class="inline">
       <select id="voiceSelect" style="flex:1;border-radius:10px;border:2px solid #ddd;padding:8px;"></select>
       <button class="btn green" id="voiceTest">🔊 Test</button>
@@ -438,9 +456,39 @@ function renderProfiles(){
     grid.appendChild(d);
   });
   const add=document.createElement("div"); add.className="profile-card add";
-  add.innerHTML=`<div class="av">➕</div><div class="nm">New player</div><div class="ag">Tap to create</div>`;
-  add.onclick=()=>openProfileEditor(null);
+  add.innerHTML=`<div class="av">➕</div><div class="nm">Add player</div><div class="ag">🔒 Parent</div>`;
+  add.onclick=()=>parentGate(()=>openProfileEditor(null));
   grid.appendChild(add);
+}
+
+/* Adding/managing players is a parent action. When a PIN is set it is required;
+   on first-time setup (no players yet, or no PIN) we let the parent through. */
+function parentGate(cb){
+  const hasPin=!!LS.get("ls.pin",null);
+  if(profiles.length===0 || !hasPin){ cb(); }
+  else askPin("check", cb);
+}
+function renderPlayerList(){
+  const box=$("playerList"); if(!box) return; box.innerHTML="";
+  if(profiles.length===0){ box.innerHTML=`<div class="sub" style="color:#999;text-shadow:none;">No players yet — add one below.</div>`; return; }
+  profiles.forEach(p=>{
+    const row=document.createElement("div"); row.className="setrow";
+    row.innerHTML=`<span style="flex:1">${p.avatar} <b>${escapeHtml(p.name)}</b> <small>Age ${ageFromDob(p.dob)}</small></span>`;
+    const btns=document.createElement("span");
+    const ed=document.createElement("button"); ed.className="btn gray"; ed.textContent="✏️";
+    ed.onclick=()=>openProfileEditor(p);
+    const del=document.createElement("button"); del.className="btn gray"; del.textContent="🗑️";
+    del.onclick=()=>deletePlayer(p);
+    btns.appendChild(ed); btns.appendChild(del); row.appendChild(btns);
+    box.appendChild(row);
+  });
+}
+function deletePlayer(p){
+  if(!confirm("Delete "+p.name+" and their progress?")) return;
+  profiles=profiles.filter(x=>x.id!==p.id);
+  LS.del("ls.mastery."+p.id); LS.del("ls.days."+p.id); LS.del("ls.stickers."+p.id);
+  LS.set("ls.profiles", profiles);
+  renderProfiles(); renderPlayerList();
 }
 
 let editingProfile=null, editAvatar=AVATARS[0], editColor=COLORS[5];
@@ -475,6 +523,7 @@ $("pfSave").onclick=()=>{
   LS.set("ls.profiles", profiles);
   $("profileOverlay").classList.remove("show");
   renderProfiles();
+  renderPlayerList();
 };
 $("pfDelete").onclick=()=>{
   if(!editingProfile) return;
@@ -569,6 +618,7 @@ function startPaper(){
   hintUsedThisPaper=false;
   $("wordtotal").textContent = paper.length;
   showScreen("game");
+  $("homeBtn").classList.add("hidden");   // no leaving mid-paper
   buildKeyboard();
   loadWord();
 }
@@ -610,6 +660,7 @@ function updateHintWord(){
 }
 function renderTray(ghost){
   const tray=$("tray"); tray.innerHTML="";
+  const sb=$("submitBtn"); if(sb) sb.classList.remove("ready");
   const units=PACK.splitIntoUnits(currentWord.w);
   const showSlots = !escalated();       // hide letter-count slots at higher levels
   // With slots: one slot per letter. Without: typed bricks + one empty landing slot.
@@ -641,13 +692,23 @@ function removeAt(i){ if(submitting) return; typed.splice(i,1); renderTray(); po
 function clearAll(){ if(submitting) return; typed=[]; renderTray(); pop(); }
 
 /* ---------- Check / submit ---------- */
+function checkOnly(){
+  if(submitting || typed.length===0) return;
+  const attempt = typed.join("");
+  // Self-review only — does NOT grade.
+  $("sayline").textContent = "Read it back… does it look right? 👀 Then press Submit.";
+  speak(attempt);
+  reviewHighlight(()=>{
+    const bricks=[...$("tray").children].filter(b=>b.classList.contains("brick"));
+    bricks.forEach(b=>b.classList.remove("lit"));
+    $("submitBtn").classList.add("ready");
+  });
+}
 function submit(){
   if(submitting || typed.length===0) return;
   const attempt = typed.join("");
   submitting=true;
-  // read-it-back nudge
-  $("sayline").textContent = "Let's check… read it back! 👀";
-  speak(attempt);
+  $("submitBtn").classList.remove("ready");
   reviewHighlight(()=>{
     const correct = attempt===currentWord.w;
     submitting=false;
@@ -770,6 +831,7 @@ function awardStickers(){
   LS.set("ls.stickers."+profile.id, sh);
 }
 function showPaperCard(){
+  $("homeBtn").classList.remove("hidden");
   showScreen("paper");
   launchConfetti(true); bigFlash("🏆");
   $("paperTitle").textContent = "🎉 Paper Done, "+profile.name+"!";
@@ -834,6 +896,7 @@ function showScreen(name){
   ["home","game","paper","progress"].forEach(s=>{
     $("screen-"+s).classList.toggle("active", s===name);
   });
+  if(name!=="game") $("homeBtn").classList.remove("hidden");
 }
 
 /* =========================================================
@@ -863,10 +926,29 @@ function buildKeyboard(){
 window.addEventListener("keydown",(e)=>{
   if(document.querySelector(".overlay.show")) return;
   if(!$("screen-game").classList.contains("active")) return;
+  // If the mobile type-catcher input is focused, its own handlers manage input.
+  if(document.activeElement===$("typeCatcher")) return;
   if(e.key==="Backspace"){ e.preventDefault(); removeLast(); return; }
   if(e.key==="Enter"){ e.preventDefault(); submit(); return; }
   if(/^[a-zA-Z]$/.test(e.key)){ e.preventDefault(); ac(); addLetter(e.key); }
 });
+
+/* Mobile built-in keyboard: a hidden input captures soft-keyboard typing.
+   Tapping the tray focuses it so the phone keyboard appears. */
+(function setupTypeCatcher(){
+  const tc=$("typeCatcher");
+  tc.addEventListener("input",()=>{
+    const v=tc.value; tc.value="";
+    for(const ch of v){ if(/[a-zA-Z]/.test(ch)){ ac(); addLetter(ch); } }
+  });
+  tc.addEventListener("keydown",(e)=>{
+    if(e.key==="Backspace"){ e.preventDefault(); removeLast(); }
+    else if(e.key==="Enter"){ e.preventDefault(); submit(); }
+  });
+  function focusCatcher(){ try{ tc.focus({preventScroll:true}); }catch(_){ tc.focus(); } }
+  $("tray").addEventListener("click", focusCatcher);
+  $("tapHint").addEventListener("click", focusCatcher);
+})();
 
 /* =========================================================
    Sounds (Web Audio)
@@ -947,6 +1029,7 @@ function openParent(){
   $("setEscalate").checked=settings.escalate;
   $("setRepeats").value=settings.repeats;
   renderSetList();
+  renderPlayerList();
   $("parentOverlay").classList.add("show");
 }
 function populateVoices(){
@@ -1057,11 +1140,12 @@ $("parentSave").onclick=()=>{
   $("parentOverlay").classList.remove("show");
 };
 $("changePinBtn").onclick=()=>{ askPin("set"); };
+$("addPlayerBtn").onclick=()=>openProfileEditor(null);
 
 /* ---------- PIN ---------- */
-let pinMode="check", pinResolve=null;
-function askPin(mode){
-  pinMode=mode;
+let pinMode="check", pinResolve=null, pinThen=null;
+function askPin(mode, then){
+  pinMode=mode; pinThen=then||null;
   const hasPin=!!LS.get("ls.pin",null);
   if(mode==="check" && !hasPin){ pinMode="setnew"; }
   $("pinTitle").textContent = pinMode==="set"||pinMode==="setnew" ? "🔑 Set Parent PIN" : "🔒 Parent PIN";
@@ -1074,13 +1158,14 @@ $("pinOk").onclick=()=>{
   if(pinMode==="set"||pinMode==="setnew"){
     if(val.length<3){ alert("PIN must be at least 3 digits."); return; }
     LS.set("ls.pin", val); $("pinOverlay").classList.remove("show");
-    if(pinMode==="setnew"){ openParent(); }
+    if(pinMode==="setnew"){ runPinThen(); }
     else alert("PIN updated!");
   } else {
-    if(val===LS.get("ls.pin",null)){ $("pinOverlay").classList.remove("show"); openParent(); }
+    if(val===LS.get("ls.pin",null)){ $("pinOverlay").classList.remove("show"); runPinThen(); }
     else { $("pinMsg").textContent="❌ Wrong PIN, try again"; $("pinInput").value=""; }
   }
 };
+function runPinThen(){ const after=pinThen; pinThen=null; if(after) after(); else openParent(); }
 $("pinCancel").onclick=()=>$("pinOverlay").classList.remove("show");
 $("pinInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("pinOk").click(); });
 
@@ -1090,10 +1175,16 @@ $("pinInput").addEventListener("keydown",e=>{ if(e.key==="Enter") $("pinOk").cli
 $("parentBtn").onclick=()=>askPin("check");
 $("homeBtn").onclick=()=>{ if(window.speechSynthesis) speechSynthesis.cancel(); showScreen("home"); renderProfiles(); };
 $("speakBtn").onclick=()=>{ ac(); if(currentWord) speak(currentWord.w); };
-$("checkBtn").onclick=submit;
+$("checkBtn").onclick=checkOnly;
+$("submitBtn").onclick=submit;
 $("backspaceBtn").onclick=removeLast;
 $("clearBtn").onclick=clearAll;
 $("hintBtn").onclick=useHint;
+$("kbToggle").onclick=()=>{
+  const kb=$("keyboard");
+  kb.classList.toggle("hidden");
+  $("kbToggle").classList.toggle("on", !kb.classList.contains("hidden"));
+};
 $("anotherBtn").onclick=startPaper;
 $("progressBtn").onclick=()=>showProgress(false);
 $("paperHomeBtn").onclick=()=>{ showScreen("home"); renderProfiles(); };
@@ -1115,7 +1206,8 @@ function shade(hex,pct){
    Boot
    ========================================================= */
 renderProfiles();
-if(profiles.length===0){ /* nudge to create */ }
+// Single player → skip the "who's playing" step and go straight in.
+if(profiles.length===1){ pickProfile(profiles[0].id); }
 
 /* PWA service worker */
 if("serviceWorker" in navigator){
