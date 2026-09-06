@@ -102,9 +102,12 @@
   .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
 
   /* On-screen keyboard */
-  .keyboard{--kw:clamp(25px,7.8vw,44px);--kh:clamp(40px,10.5vw,50px);--kg:4px;
-    display:flex;flex-direction:column;gap:7px;align-items:center;width:100%;}
-  .krow{display:flex;gap:var(--kg);flex-wrap:nowrap;width:calc(var(--kw)*10 + var(--kg)*9);max-width:100%;}
+  .keyboard{--kw:clamp(26px,7.6vw,46px);--kh:clamp(42px,10.5vw,52px);--kg:5px;
+    display:flex;flex-direction:column;gap:8px;align-items:center;width:100%;
+    background:#ffffffcc;border:2px solid #fff;border-radius:16px;padding:12px 10px;
+    box-shadow:0 6px 16px rgba(0,0,0,.12);box-sizing:border-box;max-width:560px;}
+  .krow{display:flex;gap:var(--kg);flex-wrap:nowrap;
+    width:calc(var(--kw)*10 + var(--kg)*9);max-width:100%;}
   .krow.r1{padding-left:calc((var(--kw) + var(--kg))*0.5);}
   .krow.r2{padding-left:calc((var(--kw) + var(--kg))*1.5);}
   .key{flex:0 0 auto;width:var(--kw);height:var(--kh);padding:0;
