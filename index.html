@@ -207,6 +207,9 @@
     box-shadow:0 3px 0 rgba(0,0,0,.12);animation:starpulse 1.4s ease-in-out infinite;}
   @keyframes starpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
   .buildwrap{width:100%;max-width:600px;margin:0 auto 6px;}
+  .exambanner{max-width:600px;margin:0 auto 8px;text-align:center;font-weight:900;font-size:14px;
+    color:#7a1f1f;background:linear-gradient(90deg,#ffe0e0,#ffd0a8);border:2px solid #ffb3a0;
+    padding:6px 14px;border-radius:999px;box-shadow:0 3px 0 rgba(0,0,0,.10);}
   .buildcap{text-align:center;font-weight:800;font-size:14px;color:#6b4b00;margin-bottom:5px;}
   .buildbar{display:flex;align-items:center;gap:5px;justify-content:center;}
   .bslot{flex:1 1 0;max-width:34px;height:20px;border-radius:5px;border:2px dashed #d7d7de;
@@ -255,6 +258,7 @@
     </div>
 
     <div class="stage">
+      <div class="exambanner hidden" id="examBanner"></div>
       <div class="buildwrap">
         <div class="buildcap" id="buildCap">🔨 Let's build!</div>
         <div class="buildbar" id="buildBar"></div>
@@ -390,7 +394,7 @@
     </div>
 
     <h3 style="margin-top:14px;">📚 Word sets</h3>
-    <p>Word sets save <b>automatically</b> the moment you add, toggle, delete or set an exam date — you'll see a "Saved" note. The built-in ladder is always on; only enabled sets appear in papers.</p>
+    <p>Word sets save <b>automatically</b> the moment you add, toggle, delete or set an exam date — you'll see a "Saved" note. The built-in ladder is always on; only enabled sets appear in papers. As an exam nears, its words show up more; in the <b>final week</b> papers are built from that list only.</p>
     <div class="setlist" id="setList"></div>
     <div class="inline">
       <input type="file" id="fileInput" accept=".txt,.csv" style="flex:1;font-size:13px;" />
@@ -684,6 +688,45 @@ function weightFor(w, lvl){
   if(d!==null && d>=0 && d<=EXAM_WINDOW) wt *= examBoost(d);   // ramp up toward exam day
   return wt;
 }
+const PAPER_LEN=10;
+const LIST_ONLY_DAYS=7;   // exam week: papers come from the exam list(s) only
+// Nearest active exam among a set of words (whole days), or null.
+function nearestExam(ws){
+  return ws.reduce((mn,w)=>{ const d=examDaysLeft(w._exam); return (d!==null&&(mn===null||d<mn))?d:mn; }, null);
+}
+// Are we in exam-week focus (an upcoming exam within LIST_ONLY_DAYS)?
+function examFocusDays(){
+  const near = nearestExam(activePool().filter(isExamActive));
+  return (near!==null && near<=LIST_ONLY_DAYS) ? near : null;
+}
+// Spread duplicates so the same word isn't asked back-to-back.
+function spreadPicks(arr){
+  const a=shuffle(arr.slice());
+  for(let i=1;i<a.length;i++){
+    if(a[i].w===a[i-1].w){
+      for(let j=i+1;j<a.length;j++){
+        if(a[j].w!==a[i-1].w && (i+1>=a.length || a[j].w!==a[i+1].w)){ const t=a[i]; a[i]=a[j]; a[j]=t; break; }
+      }
+    }
+  }
+  return a;
+}
+// Exam-week paper: built ONLY from the exam list(s); repeat weakest words if short.
+function listOnlyPaper(examW, lvl){
+  const ranked = examW.map(w=>({w, wt:weightFor(w,lvl)})).sort((a,b)=>b.wt-a.wt);
+  const uniq = ranked.map(o=>o.w);
+  const picks=[];
+  let bag = ranked.map(o=>({w:o.w, wt:o.wt}));
+  while(picks.length<PAPER_LEN && bag.length){            // sample the list without replacement
+    const total=bag.reduce((a,b)=>a+b.wt,0);
+    let r=Math.random()*total, k=0;
+    while(k<bag.length-1 && (r-=bag[k].wt)>0) k++;
+    picks.push(bag[k].w); bag.splice(k,1);
+  }
+  let i=0;                                                 // list smaller than a full paper → repeat weakest first
+  while(picks.length<PAPER_LEN && uniq.length){ picks.push(uniq[i%uniq.length]); i++; }
+  return spreadPicks(picks);
+}
 function buildPaper(){
   const lvl=currentLevel();
   const pf=perfFactor();
@@ -693,15 +736,18 @@ function buildPaper(){
   const doneToday = todayRec().words || [];
   // Exam-window words stay eligible even if already done today (we want more exposure).
   let candidates = eligible.filter(w => isExamActive(w) || !doneToday.includes(w.w));
-  if(candidates.length < 10) candidates = eligible;
+  if(candidates.length < PAPER_LEN) candidates = eligible;
 
-  // Reserve slots for the most-important exam words so the list is guaranteed practice.
   const examW = candidates.filter(isExamActive);
+  const near = examW.length ? nearestExam(examW) : null;
+  // Exam week (≤7 days): focus entirely on the exam list — no built-in filler.
+  if(near!==null && near<=LIST_ONLY_DAYS) return listOnlyPaper(examW, lvl);
+
+  // Otherwise reserve slots for exam words: mostly-list at 8–14 days, gentle boost at 15–21.
   let reserve = 0;
   if(examW.length){
-    const near = examW.reduce((mn,w)=>{ const d=examDaysLeft(w._exam); return (mn===null||d<mn)?d:mn; }, null);
-    reserve = near<=3?8 : near<=7?6 : near<=14?4 : 3;
-    reserve = Math.min(reserve, examW.length, 10);
+    reserve = near<=14 ? 8 : 4;
+    reserve = Math.min(reserve, examW.length, PAPER_LEN);
   }
 
   const picks=[]; const chosen=new Set();
@@ -712,12 +758,12 @@ function buildPaper(){
   const parentBag = candidates
     .filter(w => w._src==="parent" && !chosen.has(w.w))
     .map(w=>({w, wt:weightFor(w,lvl)})).sort((a,b)=>b.wt-a.wt);
-  const parentReserve = Math.min(parentBag.length, 3, 10 - picks.length);
+  const parentReserve = Math.min(parentBag.length, 3, PAPER_LEN - picks.length);
   for(let i=0;i<parentReserve;i++){ const w=parentBag.shift().w; picks.push(w); chosen.add(w.w); }
 
   // Fill the rest by weighted sampling without replacement.
   let bag = candidates.filter(w=>!chosen.has(w.w)).map(w=>({w, wt:weightFor(w,lvl)*(0.6+pf*0.8)}));
-  while(picks.length<10 && bag.length){
+  while(picks.length<PAPER_LEN && bag.length){
     const total=bag.reduce((a,b)=>a+b.wt,0);
     let r=Math.random()*total, k=0;
     while(k<bag.length-1 && (r-=bag[k].wt)>0) k++;
@@ -736,6 +782,11 @@ function startPaper(){
   hintUsedThisPaper=false;
   paperReward = REWARDS[(Math.random()*REWARDS.length)|0];
   $("wordtotal").textContent = paper.length;
+  const fd = examFocusDays(), eb = $("examBanner");
+  if(eb){
+    if(fd!==null){ eb.textContent = "📝 Exam week — practising your list only ("+(fd===0?"today!":fd===1?"1 day left":fd+" days left")+")"; eb.classList.remove("hidden"); }
+    else eb.classList.add("hidden");
+  }
   showScreen("game");
   $("homeBtn").classList.add("hidden");   // no leaving mid-paper
   lockedCase = autoCase();                // lock letter case for this paper
@@ -1281,7 +1332,7 @@ function renderSetList(){
     const r=document.createElement("div"); r.className="setrow";
     r.innerHTML=`<span class="nm">${escapeHtml(s.name)} <span class="cnt">(${s.words.length})</span></span>`;
     const date=document.createElement("input"); date.type="date"; date.value=s.examDate||"";
-    date.title="Exam date — words in this set are asked more as it nears";
+    date.title="Exam date — words show up more as it nears; in the final week papers use this list only";
     date.style.cssText="font-size:12px;border:2px solid #ddd;border-radius:8px;padding:3px 6px;";
     date.onchange=()=>{ s.examDate=date.value; saveSets(); renderSetList(); };
     r.appendChild(date);
@@ -1289,6 +1340,7 @@ function renderSetList(){
       const d=examDaysLeft(s.examDate); const badge=document.createElement("span");
       badge.className="pill"+(d!==null&&d>=0&&d<=EXAM_WINDOW?" on":"");
       badge.textContent = d===null?"" : d<0?"past" : d===0?"📝 today!" : d===1?"📝 1 day" : "📝 "+d+" days";
+      if(d!==null && d>=0 && d<=LIST_ONLY_DAYS) badge.textContent += " · list only";
       r.appendChild(badge);
     }
     const toggle=document.createElement("button"); toggle.className="pill"+(s.enabled?" on":"");
