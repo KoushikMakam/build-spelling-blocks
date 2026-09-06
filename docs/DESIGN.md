@@ -27,18 +27,25 @@ discourage.* Mistakes lead to friendly practice, never failure states.
    - The word is **spoken aloud** (🔊 replay available any time — free).
    - A **word-to-copy** hint may show (hidden automatically at higher levels).
    - Empty **brick slots** indicate the letter count (also hidden at higher levels).
-3. The child presses `A`–`Z` (or taps the on-screen keyboard). Each input **drops a
-   LEGO brick** with that letter into the build tray.
+3. The child taps the **build tray** to bring up their keyboard (physical on desktop,
+   built-in soft keyboard on phones/tablets) and types. Each input **drops a LEGO brick**
+   with that letter into the tray. An optional on-screen LEGO keyboard is available behind
+   the **⌨️ Keys** toggle (hidden by default — a real keyboard is preferred).
 4. The child **corrects** freely (see §5) — nothing is graded yet.
-5. The child **checks and submits** manually (✅ button or `Enter`) — **no auto-check**.
+5. **🔍 Check** and **✅ Submit** are **two separate steps**:
+   - **🔍 Check** = self-review only. It reads the word back and runs the review highlight
+     with a "does it look right?" nudge, then pulses Submit. It **does not grade** and
+     **never** triggers practice.
+   - **✅ Submit** (or `Enter`) = the **only** action that grades the answer.
 6. On submit:
-   - **Read-it-back**: the built word can be spoken and a gentle "does it look right?"
-     nudge encourages comparison to the target.
    - **Review highlight**: bricks light up left→right (a visible "checking" habit).
    - **Correct** → confetti + happy sound + big cheer emoji + a **star**; streak +1;
      **first-try bonus star** if correct on the first attempt; advance to next word.
    - **Wrong** → enter **practice mode** (see §4).
-7. After 10 words → **paper score card** → **personal progress board**. The child may
+7. **No leaving mid-paper**: the 🏠 Home button is hidden while a paper is in progress, so
+   the child finishes all 10 words first. It returns on the score card. (Practice mode
+   always shows the target word, so there are no dead-ends.)
+8. After 10 words → **paper score card** → **personal progress board**. The child may
    start **another paper** (unlimited per day).
 
 ---
@@ -73,17 +80,20 @@ Repeat count is configurable in Parent Zone (default **10**, range 1–20).
 
 Manual, deliberate input to teach **cross-checking**:
 
-- **Add** a letter: `A`–`Z` key, or tap the on-screen LEGO keyboard.
+- **Keyboard on request** — a real keyboard is preferred. On phones/tablets, **tapping the
+  build tray** focuses a hidden input so the device's built-in keyboard pops up. An
+  optional on-screen LEGO keyboard sits behind the **⌨️ Keys** toggle (hidden by default).
+- **Add** a letter: type it, or tap a key on the on-screen keyboard.
 - **Remove last** brick: `Backspace`, or the on-screen **⌫** button.
 - **Remove a specific** letter: **tap that brick** — bricks to its right shift left to
   fill the gap (fix middle mistakes without deleting everything).
 - **Clear all**: 🗑️ button restarts the word.
 - Every removal gives a soft "pop" sound + animation.
-- **Nothing is checked until the child submits** (✅ / `Enter`).
+- **🔍 Check reviews only; ✅ Submit / `Enter` grades.** Nothing is graded until Submit.
 
 ### Cross-checking helpers (included)
-- **Read-it-back** — hear the built word + "does it look right?" nudge before grading.
-- **Review highlight** — bricks light left→right on submit.
+- **Read-it-back** — 🔍 Check speaks the built word + "does it look right?" nudge, no grade.
+- **Review highlight** — bricks light left→right on Check and Submit.
 - **Letter-count slots** — the child can catch a wrong length themselves.
 - **First-try bonus star** — rewards careful checking over guessing.
 
@@ -144,6 +154,12 @@ Each paper = **10 words**, chosen by a smart selector (not pure random):
 ## 8. Profiles
 
 - **Multiple profiles** (siblings) with a picker on the home screen.
+- **Adding a player is a parent action** — the home "➕ Add player" tile is **PIN-gated**
+  (free only on first-time setup, before any PIN exists). Players can also be added, edited,
+  and removed from the **👦 Players** section inside the Parent Zone.
+- **Single player → straight in**: if only one player exists, the app **skips the
+  "Who's playing?" picker** on launch and goes directly to their Start screen. With two or
+  more players, the picker is shown so the child selects themselves.
 - Each profile captures: **Name**, **Date of Birth**, **Avatar** (LEGO minifigure/emoji),
   **Favourite colour** (themes the bricks).
 - **Age is computed from DOB** every session (never stored stale), so the child
@@ -169,7 +185,9 @@ A **kid-gate**, not bank-grade security — enough to stop a child editing their
   - **Download CSV template**.
   - **Voice picker** — lists the device's available speech voices with a 🔊 **Test**
     button. Default preference: **Indian English → UK → US**.
-  - Toggle "show word" hint, auto-speak; set practice repeat count; manage profiles.
+  - **👦 Players** — add, edit (name/DOB/avatar/colour), and delete players (each keeps
+    their own progress). Adding from the home screen is PIN-gated to this zone.
+  - Toggle "show word" hint, auto-speak; set practice repeat count.
 
 ---
 
@@ -252,7 +270,9 @@ Strictly **personal** — never compared to others:
 | Topic | Decision |
 |---|---|
 | Presentation | Emoji/picture + spoken + word-to-copy (hideable) |
-| Check | **Manual** (✅/Enter), no auto-check; read-it-back + review highlight |
+| Check / Submit | **Two steps**: 🔍 Check = review only (no grade); ✅ Submit / Enter grades |
+| Keyboard | **On request** — real/built-in keyboard preferred; on-screen ⌨️ toggle hidden by default; tap tray to raise phone keyboard |
+| Mid-paper | **No leaving** — 🏠 Home hidden until all 10 words are finished |
 | Correcting | Backspace / on-screen ⌫ / tap-a-brick / 🗑️ clear all |
 | Wrong answer | Practice **10×**, word visible, typo redoes just that attempt |
 | Age / difficulty | 7–8 start (age computed from **DOB**); **adaptive**; 🎂 birthday celebration |
@@ -261,8 +281,9 @@ Strictly **personal** — never compared to others:
 | Selection | **Fully adaptive** mix + **spaced repetition** (wrong↑ freq, right↓ freq) |
 | Paper size | **10 words**, unlimited papers/day |
 | Hints | Hear-again free; **one** other per paper (first letter *or* ghost) |
-| Profiles | Multiple: name, age, avatar, favourite colour |
-| Parent Zone | **PIN**; words, upload .txt/.csv sets, voice picker, settings |
+| Profiles | Multiple: name, DOB, avatar, favourite colour; **single player auto-starts** |
+| Add player | **Parent action** — PIN-gated; managed in Parent Zone (👦 Players) |
+| Parent Zone | **PIN**; players, words, upload .txt/.csv sets, voice picker, settings |
 | Word-set mgmt | Library: enable/disable/preview/rename/delete |
 | Rewards | Stars, streak, confetti, sounds, sticker shelf |
 | Progress | **Him vs. him**; daily card, personal bests, trend, day-streak |
