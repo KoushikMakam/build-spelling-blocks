@@ -1,12 +1,13 @@
 /* Build Spelling Blocks — service worker (offline caching) */
-const CACHE = "build-spelling-v8";
+const CACHE = "build-spelling-v9";
 const ASSETS = [
   "./",
   "./index.html",
   "./words-en.js",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+  "./icons/favicon.png"
 ];
 
 self.addEventListener("install", (e) => {

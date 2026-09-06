@@ -8,7 +8,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "node smoke-test.js && node smoke-test2.js"
+    "test": "node smoke-test.js && node smoke-test2.js",
+    "icons": "node gen-icon.js"
   },
   "keywords": [
     "spelling",
@@ -21,6 +22,7 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
-    "jsdom": "^30.0.1"
+    "jsdom": "^30.0.1",
+    "canvas": "^3.2.3"
   }
 }
